@@ -27,8 +27,6 @@ right_side_thickness = 150
 # stuff that transcends various dimensions
 previously_altered_widgets = ""
 step_num = 1
-var_num = 1
-const_num = 1
 item_to_edit = ""
 
 # test variables ======================================================================================================
@@ -377,7 +375,11 @@ def display_info(r):
     for widget in frm_info_inner.winfo_children():
         widget.destroy()
 
+    global item_to_edit
+
     display_item = search_results[r]    # get the search_result from the corresponding row
+    item_to_edit = display_item         # in the case were we want to edit this item
+
 
     # Name of the item
     Label(frm_info_inner, text=str(display_item.get_name()), bg=color_light, anchor='center', font=("TkDefaultFont", fontsize+15, "bold"))\
@@ -767,9 +769,6 @@ def get_item_type(item):
     return item_type
 
 
-
-# ================================================================================================================
-
 # =========================TO-DO=========================
 # used to create the add/edit item window
 def add_edit_item_window(a_or_e):
@@ -818,22 +817,50 @@ def add_edit_item_window(a_or_e):
     lab_name.grid(column=0, row=1, sticky="n, s, e, w")
     txt_name = Entry(frm_add_edit_inner,
                      highlightthickness=1, highlightbackground=accent_light)
-    txt_name.grid(column=1, row=1, sticky="n, s, e, w", padx=spacing_in, pady=spacing_in)
+    txt_name.grid(column=1, columnspan=2, row=1, sticky="n, s, e, w", padx=spacing_in, pady=spacing_in)
 
     lab_def = Label(frm_add_edit_inner, text="Definition:", highlightthickness=1,
                     highlightbackground=accent_light)
     lab_def.grid(column=0, row=2, sticky="n, s, e, w")
     txt_def = Entry(frm_add_edit_inner,
                     highlightthickness=1, highlightbackground=accent_light)
-    txt_def.grid(column=1, row=2, sticky="n, s, e, w", padx=spacing_in, pady=spacing_in)
+    txt_def.grid(column=1, columnspan=2, row=2, sticky="n, s, e, w", padx=spacing_in, pady=spacing_in)
+
+    # will add the edit item's stuff into the entry boxes
+    if a_or_e == "e":
+        txt_name.insert(0, item_to_edit.get_name())
+        txt_def.insert(0, item_to_edit.get_description())
 
     item_type = StringVar()  # create the item type in this fancy way I don't understand
-    item_type.set("Select an Item Type")  # will set the initial value
 
     # drop down for adding items, "e" will give the option that was clicked on
     opm_type = OptionMenu(frm_add_edit_inner, item_type, "Logic", "Constant", "Variable", "Equation", "Theory", "Method",
-                          command=lambda e: add_edit_item_option_display(e, frm_add_edit_inner, a_or_e))
-    opm_type.grid(column=0, columnspan=2, row=0, sticky="n, s, e, w", padx=spacing_in, pady=spacing_in)
+                          command=lambda e: add_edit_item_option_display(e, frm_add_edit_inner, "a"))
+    opm_type.grid(column=0, columnspan=3, row=0, sticky="n, s, e, w", padx=spacing_in, pady=spacing_in)
+
+    # will set the initial value of the option menu to the correct item type
+    if a_or_e == "e":
+        it = get_item_type(item_to_edit)
+
+        if it == 'v':
+            item_type.set("Variable")
+            add_edit_item_option_display("Variable", frm_add_edit_inner, a_or_e)
+        elif it == 'c':
+            item_type.set("Constant")
+            add_edit_item_option_display("Constant", frm_add_edit_inner, a_or_e)
+        elif it == 'e':
+            item_type.set("Equation")
+            add_edit_item_option_display("Equation", frm_add_edit_inner, a_or_e)
+        elif it == 'm':
+            item_type.set("Method")
+            add_edit_item_option_display("Method", frm_add_edit_inner, a_or_e)
+        elif it == 'l':
+            item_type.set("Logic")
+        else:
+            item_type.set("Theory")
+            add_edit_item_option_display("Theory", frm_add_edit_inner, a_or_e)
+    else:
+        item_type.set("Logic")
 
     small_win.mainloop()
 
@@ -851,46 +878,187 @@ def add_edit_item_option_display(type_to_display, container_widget, a_or_e):
     # reset this value as something different is being added
     global step_num
     step_num = 1
-    global var_num
-    var_num = 1
-    global const_num
-    const_num = 1
 
     row = 3
     # will decide what needs to be displayed depending on the type of item
     if type_to_display == 'Variable' or type_to_display == 'Constant':  # when displaying info about a variable/constant
-        add_edit_item_v_or_c_display(type_to_display, container_widget, a_or_e)
+        add_edit_item_v_or_c_display(type_to_display, container_widget, a_or_e, item_to_edit)
 
     elif type_to_display == 'Equation':  # when displaying info about a equation
         lab_equ = Label(container_widget, text="Equation:", highlightthickness=1, highlightbackground=accent_light)
         lab_equ.grid(column=0, row=row, sticky="n, s, e, w")
         txt_equ = Entry(container_widget, highlightthickness=1, highlightbackground=accent_light)
-        txt_equ.grid(column=1, row=row, sticky="n, s, e, w", padx=spacing_in, pady=spacing_in)
+        txt_equ.grid(column=1, columnspan=2, row=row, sticky="n, s, e, w", padx=spacing_in, pady=spacing_in)
+
+        # will add the edit item's stuff into the entry boxes
+        if a_or_e == "e":
+            txt_equ.insert(0, item_to_edit.get_equation_normal())
 
         row += 1
 
-        add_edit_item_equation_display(container_widget, a_or_e)
+        add_edit_item_equation_display(container_widget, a_or_e, item_to_edit)
 
     elif type_to_display == 'Theory':  # when displaying info about a theory
         lab_theory = Label(container_widget, text="Theory in limbo and not done.",
                            relief=relief_style, highlightthickness=1, highlightbackground=accent_light)
-        lab_theory.grid(column=0, row=3, columnspan=2, sticky="n, s, e, w")
+        lab_theory.grid(column=0, row=3, columnspan=3, sticky="n, s, e, w")
 
     elif type_to_display == 'Method':  # when displaying info about a method
         selected_item_to_add = StringVar()  # create the item type in this fancy way I don't understand
         selected_item_to_add.set("Select an item to add")  # will set the initial value
+
         opm_type = OptionMenu(container_widget, selected_item_to_add,
                               "Logic", "Constant", "Variable", "Equation", "Theory")
         opm_type.grid(column=1, row=3, sticky="n, s, e, w")
 
         Button(container_widget, text="Add Step:",
-               command=lambda: add_edit_method_step_add(selected_item_to_add.get(), container_widget, a_or_e))\
+               command=lambda: add_edit_method_step_add(selected_item_to_add.get(), container_widget, a_or_e, ""))\
             .grid(column=0, row=3, sticky="n, s, e, w")
+
+        # will automatically display all the steps affiliated with this method when in editing mode
+        if a_or_e == "e":
+            for step in item_to_edit.get_steps():
+                it = get_item_type(step)
+
+                if it == 'v':
+                    add_edit_method_step_add("Variable", container_widget, a_or_e, step)
+                elif it == 'c':
+                    add_edit_method_step_add("Constant", container_widget, a_or_e, step)
+                elif it == 'e':
+                    add_edit_method_step_add("Equation", container_widget, a_or_e, step)
+                elif it == 'm':
+                    add_edit_method_step_add("Method", container_widget, a_or_e, step)
+                elif it == 'l':
+                    add_edit_method_step_add("Logic", container_widget, a_or_e, step)
+                else:
+                    add_edit_method_step_add("Theory", container_widget, a_or_e, step)
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DONE~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# displays the correct input criteria for each of the item types
+def add_edit_item_v_or_c_display(type_to_display, container_widget, a_or_e, e_item):
+    r = container_widget.winfo_children()[-1].grid_info()['row'] + 3    # not sure why it always gets 0 but it works
+
+    lab_sym = Label(container_widget, text="Symbol:",
+                    relief=relief_style, highlightthickness=1, highlightbackground=accent_light)
+    lab_sym.grid(column=0, row=r, sticky="n, s, e, w")
+    txt_sym = Entry(container_widget,
+                    relief=relief_style, highlightthickness=1, highlightbackground=accent_light)
+    txt_sym.grid(column=1, columnspan=2, row=r, sticky="n, s, e, w", padx=spacing_in, pady=spacing_in)
+
+    r += 1
+
+    if type_to_display == 'Constant' or type_to_display == 'c' :  # for the constant specifically
+        lab_val = Label(container_widget, text="Value:",
+                        relief=relief_style, highlightthickness=1, highlightbackground=accent_light)
+        lab_val.grid(column=0, row=r, sticky="n, s, e, w")
+        txt_val = Entry(container_widget,
+                        relief=relief_style, highlightthickness=1, highlightbackground=accent_light)
+        txt_val.grid(column=1, columnspan=2, row=r, sticky="n, s, e, w", padx=spacing_in, pady=spacing_in)
+
+        # will add the edit item's stuff into the entry boxes
+        if a_or_e == "e":
+            txt_val.insert(0, e_item.get_value())
+
+        r += 1
+
+    lab_unit = Label(container_widget, text="Units:",
+                     relief=relief_style, highlightthickness=1, highlightbackground=accent_light)
+    lab_unit.grid(column=0, row=r, sticky="n, s, e, w")
+    txt_unit = Entry(container_widget,
+                     relief=relief_style, highlightthickness=1, highlightbackground=accent_light)
+    txt_unit.grid(column=1, columnspan=2, row=r, sticky="n, s, e, w", padx=spacing_in, pady=spacing_in)
+
+    r += 1
+
+    # will add the edit item's stuff into the entry boxes
+    if a_or_e == "e":
+        txt_sym.insert(0, e_item.get_symbol())
+        txt_unit.insert(0, e_item.get_units())
+
+    return r
+
+
+# =========================TO-DO=========================
+# displays the correct input criteria for each of the item types
+def add_edit_item_equation_display(container_widget, a_or_e, equ_to_display):
+    start_row = container_widget.winfo_children()[-1].grid_info()['row']+1
+
+    frm_equ_holder = Frame(container_widget)
+    frm_equ_holder.grid(column=0, columnspan=2, row=start_row, sticky="n, s, e, w")
+    frm_equ_holder.columnconfigure(2, weight=1)
+    frm_equ_holder.columnconfigure(3, weight=1)
+
+    Label(frm_equ_holder, text="Featured variables/constants:", highlightthickness=1, highlightbackground=accent_light,
+          font=("TkDefaultFont", fontsize+2, "bold", "italic"))\
+        .grid(column=0, columnspan=2, row=1, sticky="n, s, e, w")
+
+    frm_add_btns_holder = Frame(frm_equ_holder)
+    frm_add_btns_holder.grid(column=2, row=1, sticky="n, s, e, w")
+    frm_add_btns_holder.columnconfigure(0, weight=1)
+    frm_add_btns_holder.columnconfigure(1, weight=1)
+
+    btn_add_var = Button(frm_add_btns_holder, text="Add Variable",
+                         command=lambda: add_edit_item_equation_item_add("v", frm_equ_holder, "a"))
+    btn_add_var.grid(column=0, row=0, sticky="n, s, e, w")
+
+    btn_add_const = Button(frm_add_btns_holder, text="Add Constant",
+                           command=lambda: add_edit_item_equation_item_add("c", frm_equ_holder, "a"))
+    btn_add_const.grid(column=1, row=0, sticky="n, s, e, w")
+
+    # will automatically display all the variables and constants affiliated with this equation when in editing mode
+    if a_or_e == "e":
+        for var_const in equ_to_display.get_all_variables():
+            add_edit_item_equation_item_add(var_const, frm_equ_holder, a_or_e)
+
+
+# =========================TO-DO=========================
+# displays wrapping items then calls add_edit_item_v_or_c_display to display all var/const in/to add to the equation 
+def add_edit_item_equation_item_add(item_to_add, container_widget, a_or_e):
+    if a_or_e == "e":
+        type_to_display = get_item_type(item_to_add)
+    else:
+        type_to_display = item_to_add
+
+    start_row = container_widget.winfo_children()[-1].grid_info()['row']+1
+
+    if type_to_display == "v":
+        Label(container_widget, text="Variable:",
+              anchor="center", font=("TkDefaultFont", fontsize,"italic", "underline"))\
+            .grid(column=0, columnspan=3, row=start_row, sticky="n, s, e, w")
+
+    else:
+        Label(container_widget, text="Constant:",
+              anchor="center", font=("TkDefaultFont", fontsize, "italic", "underline"))\
+            .grid(column=0, columnspan=3, row=start_row, sticky="n, s, e, w")
+
+    start_row += 1
+
+    lab_name = Label(container_widget, text="Name:", highlightthickness=1, highlightbackground=accent_light)
+    lab_name.grid(column=0, row=start_row, sticky="n, s, e, w")
+    txt_name = Entry(container_widget, highlightthickness=1, highlightbackground=accent_light)
+    txt_name.grid(column=1, columnspan=2, row=start_row, sticky="n, s, e, w", padx=spacing_in, pady=spacing_in)
+
+    start_row += 1
+
+    lab_def = Label(container_widget, text="Definition:", highlightthickness=1, highlightbackground=accent_light)
+    lab_def.grid(column=0, row=start_row, sticky="n, s, e, w")
+    txt_def = Entry(container_widget, highlightthickness=1, highlightbackground=accent_light)
+    txt_def.grid(column=1, columnspan=2, row=start_row, sticky="n, s, e, w", padx=spacing_in, pady=spacing_in)
+
+    start_row += 1
+
+    # will add the edit item's stuff into the entry boxes
+    if a_or_e == "e":
+        txt_name.insert(0, item_to_edit.get_name())
+        txt_def.insert(0, item_to_edit.get_description())
+
+    add_edit_item_v_or_c_display(type_to_display, container_widget, a_or_e, item_to_add)
 
 
 # =========================TO-DO=========================
 # displays wrapping items then calls respective item addition to display all items in/to add to the method
-def add_edit_method_step_add(type_to_display, container_widget, a_or_e):
+def add_edit_method_step_add(type_to_display, container_widget, a_or_e, item_to_display):
     global step_num
 
     # used to check to make sure user selected an actual item
@@ -907,135 +1075,44 @@ def add_edit_method_step_add(type_to_display, container_widget, a_or_e):
         lab_name = Label(container_widget, text="Name:")
         lab_name.grid(column=0, row=start_row, sticky="n, s, e, w")
         txt_name = Entry(container_widget, highlightthickness=1, highlightbackground=accent_light)
-        txt_name.grid(column=1, row=start_row, sticky="n, s, e, w", padx=spacing_in, pady=spacing_in)
+        txt_name.grid(column=1, columnspan=2, row=start_row, sticky="n, s, e, w", padx=spacing_in, pady=spacing_in)
 
         start_row += 1
 
         lab_def = Label(container_widget, text="Definition:", highlightthickness=1, highlightbackground=accent_light)
         lab_def.grid(column=0, row=start_row, sticky="n, s, e, w")
         txt_def = Entry(container_widget, highlightthickness=1, highlightbackground=accent_light)
-        txt_def.grid(column=1, row=start_row, sticky="n, s, e, w", padx=spacing_in, pady=spacing_in)
+        txt_def.grid(column=1, columnspan=2, row=start_row, sticky="n, s, e, w", padx=spacing_in, pady=spacing_in)
 
-        start_row += 1
+        # will add the edit item's stuff into the entry boxes
+        if a_or_e == "e":
+            txt_name.insert(0, item_to_display.get_name())
+            txt_def.insert(0, item_to_display.get_description())
 
-        if type_to_display == "Constant":
-            add_edit_item_v_or_c_display("c", container_widget, a_or_e)
-        elif type_to_display == "Variable":
-            add_edit_item_v_or_c_display("v", container_widget, a_or_e)
-        elif type_to_display == "Equation":
-            add_edit_item_equation_display(container_widget, a_or_e)
-        elif type_to_display == "Theory":
-            Label(container_widget, text="Theory isn't functional").grid(column=0, row=start_row, sticky="n, s, e, w")
+            start_row += 1
+
+            if type_to_display == "Constant":
+                add_edit_item_v_or_c_display("c", container_widget, a_or_e, item_to_display)
+            elif type_to_display == "Variable":
+                add_edit_item_v_or_c_display("v", container_widget, a_or_e, item_to_display)
+            elif type_to_display == "Equation":
+                add_edit_item_equation_display(container_widget, a_or_e, item_to_display)
+            elif type_to_display == "Theory":
+                Label(container_widget, text="Theory isn't functional").grid(column=0, columnspan=2, row=start_row, sticky="n, s, e, w")
+
+        else:
+            if type_to_display == "Constant":
+                add_edit_item_v_or_c_display("c", container_widget, "a", item_to_display)
+            elif type_to_display == "Variable":
+                add_edit_item_v_or_c_display("v", container_widget, "a", item_to_display)
+            elif type_to_display == "Equation":
+                add_edit_item_equation_display(container_widget, "a", item_to_display)
+            elif type_to_display == "Theory":
+                Label(container_widget, text="Theory isn't functional").grid(column=0, columnspan=2, row=start_row, sticky="n, s, e, w")
 
     else:
         print("Please select an item pop-up window would occur here")
 
-
-
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DONE~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# displays the correct input criteria for each of the item types
-def add_edit_item_v_or_c_display(type_to_display, container_widget, a_or_e):
-    r = container_widget.winfo_children()[-1].grid_info()['row'] + 3    # not sure why it always gets 0 but it works
-
-    lab_sym = Label(container_widget, text="Symbol:",
-                    relief=relief_style, highlightthickness=1, highlightbackground=accent_light)
-    lab_sym.grid(column=0, row=r, sticky="n, s, e, w")
-    txt_sym = Entry(container_widget,
-                    relief=relief_style, highlightthickness=1, highlightbackground=accent_light)
-    txt_sym.grid(column=1, row=r, sticky="n, s, e, w", padx=spacing_in, pady=spacing_in)
-
-    r += 1
-
-    if type_to_display == 'Constant':  # for the constant specifically
-        lab_val = Label(container_widget, text="Value:",
-                        relief=relief_style, highlightthickness=1, highlightbackground=accent_light)
-        lab_val.grid(column=0, row=r, sticky="n, s, e, w")
-        txt_val = Entry(container_widget,
-                        relief=relief_style, highlightthickness=1, highlightbackground=accent_light)
-        txt_val.grid(column=1, row=r, sticky="n, s, e, w", padx=spacing_in, pady=spacing_in)
-
-        r += 1
-
-    lab_unit = Label(container_widget, text="Units:",
-                     relief=relief_style, highlightthickness=1, highlightbackground=accent_light)
-    lab_unit.grid(column=0, row=r, sticky="n, s, e, w")
-    txt_unit = Entry(container_widget,
-                     relief=relief_style, highlightthickness=1, highlightbackground=accent_light)
-    txt_unit.grid(column=1, row=r, sticky="n, s, e, w", padx=spacing_in, pady=spacing_in)
-
-    r += 1
-
-    return r
-
-
-# =========================TO-DO=========================
-# displays the correct input criteria for each of the item types
-def add_edit_item_equation_display(container_widget, a_or_e):
-    start_row = container_widget.winfo_children()[-1].grid_info()['row']+1
-
-    frm_equ_holder = Frame(container_widget)
-    frm_equ_holder.grid(column=0, columnspan=2, row=start_row, sticky="n, s, e, w")
-    frm_equ_holder.columnconfigure(0, weight=1)
-
-    Label(frm_equ_holder, text="Featured variables/constants:", highlightthickness=1, highlightbackground=accent_light,
-          font=("TkDefaultFont", fontsize+2, "bold", "italic"))\
-        .grid(column=0, row=1, sticky="n, s, e, w")
-
-    frm_add_btns_holder = Frame(frm_equ_holder)
-    frm_add_btns_holder.grid(column=1, row=1, sticky="n, s, e, w")
-    frm_add_btns_holder.columnconfigure(0, weight=1)
-    frm_add_btns_holder.columnconfigure(1, weight=1)
-
-    btn_add_var = Button(frm_add_btns_holder, text="Add Variable",
-                         command=lambda: add_edit_item_equation_item_add("v", frm_equ_holder, a_or_e))
-    btn_add_var.grid(column=0, row=0, sticky="n, s, e, w")
-
-    btn_add_const = Button(frm_add_btns_holder, text="Add Constant",
-                           command=lambda: add_edit_item_equation_item_add("c", frm_equ_holder, a_or_e))
-    btn_add_const.grid(column=1, row=0, sticky="n, s, e, w")
-
-
-# =========================TO-DO=========================
-# displays wrapping items then calls add_edit_item_v_or_c_display to display all var/const in/to add to the equation 
-def add_edit_item_equation_item_add(type_to_display, container_widget, a_or_e):
-    global var_num
-    global const_num
-
-    start_row = container_widget.winfo_children()[-1].grid_info()['row']+1
-
-    if type_to_display == "v":
-        Label(container_widget, text="Component " + str(var_num+const_num-1) + " - Variable " + str(var_num) + ":",
-              anchor="center", font=("TkDefaultFont", fontsize,"italic", "underline"))\
-            .grid(column=0, columnspan=2, row=start_row, sticky="n, s, e, w")
-        var_num += 1
-
-    else:
-        Label(container_widget, text="Component " + str(var_num+const_num-1) + " - Constant " + str(const_num) + ":",
-              anchor="center", font=("TkDefaultFont", fontsize, "italic", "underline"))\
-            .grid(column=0, columnspan=2, row=start_row, sticky="n, s, e, w")
-        const_num += 1
-
-    start_row += 1
-
-    lab_name = Label(container_widget, text="Name:", highlightthickness=1, highlightbackground=accent_light)
-    lab_name.grid(column=0, row=start_row, sticky="n, s, e, w")
-    txt_name = Entry(container_widget, highlightthickness=1, highlightbackground=accent_light)
-    txt_name.grid(column=1, row=start_row, sticky="n, s, e, w", padx=spacing_in, pady=spacing_in)
-
-    start_row += 1
-
-    lab_def = Label(container_widget, text="Definition:", highlightthickness=1, highlightbackground=accent_light)
-    lab_def.grid(column=0, row=start_row, sticky="n, s, e, w")
-    txt_def = Entry(container_widget, highlightthickness=1, highlightbackground=accent_light)
-    txt_def.grid(column=1, row=start_row, sticky="n, s, e, w", padx=spacing_in, pady=spacing_in)
-
-    start_row += 1
-
-    add_edit_item_v_or_c_display(type_to_display, container_widget, a_or_e)
-
-
-# ================================================================================================================
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DONE~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # edit item by first removing old item then writing new one
@@ -1062,8 +1139,8 @@ def edit_item(old_item, new_item):
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DONE~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # ---------------------------big title label---------------------------
-lab_title = Label(window, text="Dictionary of the Humble Engineer", bg=color_dark, font=("TkDefaultFont", fontsize*3),
-                  relief="ridge", highlightbackground="red", highlightthickness=5)
+lab_title = Label(window, text="Dictionary of the Humble First Class Engineer", bg=color_dark,
+                  font=("TkDefaultFont", fontsize*3), relief="ridge", highlightbackground="red", highlightthickness=5)
 lab_title.grid(column=0, columnspan=2, row=0, padx=spacing_out_x, pady=spacing_out_y,
                ipadx=spacing_out_x / 2, ipady=spacing_out_y / 2)
 
@@ -1117,7 +1194,7 @@ Checkbutton(frm_places_checkboxs, text="Symbol", variable=search_symbol) \
     .grid(column=0, row=1, sticky="n, s, e, w")
 Checkbutton(frm_places_checkboxs, text="Value", variable=search_value) \
     .grid(column=1, row=1, sticky="n, s, e, w")
-Checkbutton(frm_places_checkboxs, text="units", variable=search_units) \
+Checkbutton(frm_places_checkboxs, text="Units", variable=search_units) \
     .grid(column=0, row=2, sticky="n, s, e, w")
 
 
@@ -1136,8 +1213,8 @@ frm_input = LabelFrame(frm_left, text="What do you want to search for?",
 frm_input.grid(column=1, row=1, sticky="n, s, e, w", pady=spacing_out_y * 2)
 
 # text box to get user input
-txt_search = Entry(frm_input, highlightthickness=1, highlightbackground=accent_light)
-txt_search.grid(column=0, row=1, sticky="n, s, e, w", padx=spacing_in, pady=spacing_in)
+txt_search = Entry(frm_input, highlightthickness=1, highlightbackground=accent_light, selectbackground="green", selectforeground = "red")
+txt_search.grid(column=0, columnspan=2, row=1, sticky="n, s, e, w", padx=spacing_in, pady=spacing_in)
 txt_search.bind("<Return>", lambda x: search())     # allows user to press enter to search
 
 # button to begin searching. Calls the "print_search" function that starts the process of printing results
