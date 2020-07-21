@@ -1,12 +1,33 @@
+#!/usr/bin python
+import sys
 from tkinter import *
 
-root = Tk()
+# My frame for form
+class simpleform_ap(Tk):
 
-def callback(event):
-    print("clicked at", event.x, event.y)
+    def __init__(self,parent):
+        Tk.__init__(self,parent)
+        self.parent = parent
+        self.initialize()
+        self.grid()
 
-frame = Frame(root, width=100, height=100)
-frame.bind("<Button-1>", callback)
-frame.pack()
+    def initialize(self):
+        # Dropdown Menu
+        optionList = ["Yes","No"]
+        self.dropVar=StringVar()
+        self.dropVar.set("Yes") # default choice
+        self.dropMenu1 = OptionMenu(self, self.dropVar, *optionList,
+                                    command=self.func)
+        self.dropMenu1.grid(column=1,row=4)
 
-root.mainloop()
+    def func(self,value):
+        print(value)
+
+
+def create_form(argv):
+    form = simpleform_ap(None)
+    form.title('My form')
+    form.mainloop()
+
+if __name__ == "__main__":
+    create_form(sys.argv)
