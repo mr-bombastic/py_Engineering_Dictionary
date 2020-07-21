@@ -1,3 +1,4 @@
 _=^=_& name & description & image
 Logic boi&some information about logic stuff that is super long and designed to break the ui&
 Logic boi&some information about logic stuff that is super long and designed to break the ui&
+Logic name save test&Logic desctiption save test&not done

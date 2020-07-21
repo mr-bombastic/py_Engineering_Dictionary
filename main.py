@@ -25,7 +25,7 @@ left_side_thickness = 400
 right_side_thickness = 150
 
 # stuff that transcends various dimensions
-previously_altered_widgets = ""
+previously_altered_widgets = []
 step_num = 1
 item_to_edit = ""
 
@@ -714,9 +714,15 @@ def get_item_file_directory(item):
 # will save item(s) into respective files within the dictionary directory
 def save_items(items):
     # this for loop is just in case an array is given. Functionality that might be provided in the future
-    for i in items:
-        file = open(str(get_item_file_directory(i)), False)  # open the corresponding file
-        file.write(item_to_string(i))  # save the corresponding item string
+
+    try:
+        for i in items:
+            file = open(str(get_item_file_directory(i)), 'a')  # open the corresponding file
+            file.write(item_to_string(i))  # save the corresponding item string
+            file.close()  # close the file
+    except TypeError:
+        file = open(str(get_item_file_directory(items)), 'a')  # open the corresponding file
+        file.write(item_to_string(items))  # save the corresponding item string
         file.close()  # close the file
 
 
@@ -933,20 +939,7 @@ def add_edit_item_option_display(type_to_display, container_widget, to_edit):
         # will automatically display all the steps affiliated with this method when in editing mode
         if to_edit:
             for step in item_to_edit.get_steps():
-                it = get_item_type(step)
-
-                if it == "Variable":
-                    add_edit_method_step_add("Variable", container_widget, to_edit, step)
-                elif it == "Constant":
-                    add_edit_method_step_add("Constant", container_widget, to_edit, step)
-                elif it == "Equation":
-                    add_edit_method_step_add("Equation", container_widget, to_edit, step)
-                elif it == "Method":
-                    add_edit_method_step_add("Method", container_widget, to_edit, step)
-                elif it == "Logic":
-                    add_edit_method_step_add("Logic", container_widget, to_edit, step)
-                else:
-                    add_edit_method_step_add("Theory", container_widget, to_edit, step)
+                add_edit_method_step_add(get_item_type(step), container_widget, to_edit, step)
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DONE~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1082,7 +1075,7 @@ def add_edit_method_step_add(type_to_display, container_widget, to_edit, item_to
 
         Label(container_widget, highlightthickness=1, text="Step " + str(step_num) + ": " + str(type_to_display),
                          highlightbackground=accent_light, font=("TkDefaultFont", fontsize + 5, "bold", "italic"))\
-            .grid(column=0, columnspan=2, row=start_row, sticky="n, s, e, w")
+            .grid(column=0, columnspan=3, row=start_row, sticky="n, s, e, w")
 
         step_num += 1
         start_row += 1
@@ -1132,18 +1125,37 @@ def add_edit_method_step_add(type_to_display, container_widget, to_edit, item_to
 # will add or edit the item the user has given
 def add_edit_item_submit(container_widget, to_edit):
     list_of_widgets = container_widget.winfo_children()
-    
-    item_to_save = ""
+    item_type_item_to_edit = get_item_type(item_to_edit)
+    time_type_selected = item_type_to_add_or_edit.get()
 
-    time_type = item_type_to_add_or_edit.get()
+    item_to_save = ""
+    list_of_txt_box_text = []
+
+    # collect all the text boxes into on list
+    for item in list_of_widgets:
+        if item.winfo_class() == "Entry":
+            list_of_txt_box_text.append(item.get())
+
+
+    if time_type_selected == "Logic":
+        item_to_save = Logic(list_of_txt_box_text[0], list_of_txt_box_text[1], "image not done")
+
+    elif time_type_selected == "Variable":
+        item_to_save = Variable(list_of_txt_box_text[0], list_of_txt_box_text[2], 0,
+                                list_of_txt_box_text[3], list_of_txt_box_text[1])
+
+    elif time_type_selected == "Constant":
+        item_to_save = Constant(list_of_txt_box_text[0], list_of_txt_box_text[2], list_of_txt_box_text[3],
+                                list_of_txt_box_text[4], list_of_txt_box_text[1])
+
 
     # if the user wants the edit an item they can change the type of item they want to edit
-    if to_edit and get_item_type(item_to_edit) == time_type:
+    if to_edit and item_type_item_to_edit == time_type_selected:
         pass
 
     # if they are adding an item
     else:
-        pass
+        save_items(item_to_save)
 
 
 
