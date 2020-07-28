@@ -100,7 +100,11 @@ search_value = IntVar(value=1)
 search_units = IntVar(value=1)
 
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DONE~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# used to alert the user of their actions and asks them if they want to continue or not
+def alert_user(display_string):
+    return messagebox.askyesno(title="Warning", message=str(display_string))
+
+
 # print every saved item that is selected in the checkboxes
 def print_all():
     destroy_results()  # will delete all the old search results
@@ -123,7 +127,6 @@ def print_all():
     print_results()
 
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DONE~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Will search though the database and fill the array to ultimately have it printed
 def search():
     destroy_results()  # will delete all the old search results
@@ -156,7 +159,6 @@ def search():
     # save_items(search_results)
 
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DONE~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # will use the given text to search through the search_results list and will weed out anything that doesn't match
 def search_in_list(search_text, list_to_search):
     i = 0
@@ -232,7 +234,6 @@ def search_in_list(search_text, list_to_search):
     return list_to_search
 
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DONE~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # destroys all previous search results to allow new ones to be printed. also deletes stored widgets
 def destroy_results():
     # destroys all widgets in frame
@@ -244,7 +245,6 @@ def destroy_results():
     previously_altered_widgets = ""
 
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DONE~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # called when a search result is clicked to get the widget's row. From there display_info can display correct item
 def callback_get_widget_row(event):
     global previously_altered_widgets   # required for the bit where this variable needs to be set to this
@@ -380,7 +380,6 @@ def print_results():
         r += 1  # increment rows so that items will not overlap
 
 
-# =========================TO-DO=========================
 # will display a selected item's info in the display area
 def display_info(r):
     # destroys anything that was in the frame before
@@ -460,7 +459,6 @@ def display_info(r):
         Label(frm_info_inner, text=display_item.get_description(), bg=color_light).grid(row=r, column=0, columnspan=4, sticky="n, s, e, w")
 
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DONE~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # used to display information for equations. was taken out just to reduce repetition
 # does NOT display the name or description of the equation
 def display_info_equ(equ, row):
@@ -489,7 +487,6 @@ def display_info_equ(equ, row):
     return row      # return the row so the above code knows where to start up again
 
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DONE~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # used to display information for variables and constants. was taken out just to reduce repetition
 # does NOT display names or descriptions
 def display_info_var_const(var_or_const, row):
@@ -504,7 +501,6 @@ def display_info_var_const(var_or_const, row):
         .grid(row=row, column=2)
 
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DONE~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # get the corresponding string of each item type
 def item_to_string(item):
     # will decide the correct save string of the item
@@ -540,7 +536,6 @@ def item_to_string(item):
     return item_string
 
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DONE~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # will return a filled out list of items. Checks if its given multiple lines of strings or just one line
 def string_to_item(lines, item_type):
     items = []
@@ -555,7 +550,6 @@ def string_to_item(lines, item_type):
     return items  # return the list of items
 
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DONE~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # will return a filled out item based on the string given. Shouldn't be used on its own
 def string_to_item_conversion_logic(line, item_type):
     item = False        # just in case nothing is written to this it will return a 'False' error message
@@ -692,7 +686,6 @@ def string_to_item_conversion_logic(line, item_type):
     return item  # return the item
 
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DONE~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # get correct file directory for item
 def get_item_file_directory(item):
     # will decide the correct file directory for the item
@@ -713,7 +706,6 @@ def get_item_file_directory(item):
     return file_directory
 
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DONE~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # will save item(s) into respective files within the dictionary directory
 def save_items(items):
     # this for loop is just in case an array is given. Functionality that might be provided in the future
@@ -729,7 +721,6 @@ def save_items(items):
         file.close()  # close the file
 
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DONE~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # saves all the lines of a target_file
 def get_file_lines(target_file):
 
@@ -742,7 +733,6 @@ def get_file_lines(target_file):
     return lines
 
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DONE~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # will filter the target file to make sure it exists. if it doesn't it will create it
 def file_existence_filter(target_file):
     try:
@@ -767,7 +757,6 @@ def file_existence_filter(target_file):
         file.close()  # close the file
 
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DONE~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # will return a letter based on the type of item
 def get_item_type(item):
     if isinstance(item, Variable):  # when displaying info about a variable
@@ -787,7 +776,6 @@ def get_item_type(item):
     return item_type
 
 
-# =========================TO-DO=========================
 # used to create the add/edit item window
 def add_edit_item_window(to_edit):
     # stuff for creating the pop-up window
@@ -888,7 +876,6 @@ def add_edit_item_window(to_edit):
     small_win.mainloop()
 
 
-# =========================TO-DO=========================
 # displays the correct input criteria for each of the item types
 def add_edit_item_option_display(type_to_display, container_widget, to_edit):
     # saves all the widgets after the first 5 which are always gonna be there
@@ -902,7 +889,6 @@ def add_edit_item_option_display(type_to_display, container_widget, to_edit):
     global step_num
     step_num = 1
 
-    row = 3
     # will decide what needs to be displayed depending on the type of item
     if type_to_display == "Variable" or type_to_display == "Constant":  # when displaying info about a variable/constant
         add_edit_item_v_or_c_display(type_to_display, container_widget, to_edit, item_to_edit)
@@ -933,7 +919,6 @@ def add_edit_item_option_display(type_to_display, container_widget, to_edit):
                 add_edit_method_step_add(get_item_type(step), container_widget, to_edit, step)
 
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DONE~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # displays the correct input criteria for each of the item types
 def add_edit_item_v_or_c_display(type_to_display, container_widget, to_edit, e_item):
     r = container_widget.winfo_children()[-1].grid_info()['row'] + 3    # not sure why it always gets 0 but it works
@@ -978,7 +963,6 @@ def add_edit_item_v_or_c_display(type_to_display, container_widget, to_edit, e_i
     return r
 
 
-# =========================TO-DO=========================
 # displays the correct input criteria for each of the item types
 def add_edit_item_equation_display(container_widget, to_edit, equ_to_display):
     start_row = container_widget.winfo_children()[-1].grid_info()['row']+3
@@ -1023,7 +1007,6 @@ def add_edit_item_equation_display(container_widget, to_edit, equ_to_display):
             add_edit_item_equation_item_add(var_const, frm_equ_holder, to_edit)
 
 
-# =========================TO-DO=========================
 # displays wrapping items then calls add_edit_item_v_or_c_display to display all var/const in/to add to the equation 
 def add_edit_item_equation_item_add(item_to_add, container_widget, to_edit):
     if to_edit:
@@ -1067,7 +1050,6 @@ def add_edit_item_equation_item_add(item_to_add, container_widget, to_edit):
     add_edit_item_v_or_c_display(type_to_display, container_widget, to_edit, item_to_add)
 
 
-# =========================TO-DO=========================
 # displays wrapping items then calls respective item addition to display all items in/to add to the method
 def add_edit_method_step_add(type_to_display, container_widget, to_edit, item_to_display):
     global step_num
@@ -1256,12 +1238,19 @@ def item_submit_equ(outer_text_list, equ_frame_children):
     return Equation(outer_text_list[0], outer_text_list[1], outer_text_list[2], list_of_variables)
 
 
+# will delete the highlighted item from the database
+def item_delete():
+    if alert_user("Do you wish to delete the selected item?"):
+        item_to_string(item_to_edit)
+
+
+
 # ======================================================================================================================
 # ============================================ NOW THE MAIN CODE BODY BEGINS ===========================================
 # ======================================================================================================================
 
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DONE~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 # ---------------------------big title label---------------------------
 lab_title = Label(window, text="Dictionary of the Humble First Class Engineer", bg=color_dark,
                   font=("TkDefaultFont", fontsize*3), relief="ridge", highlightbackground="red", highlightthickness=5)
@@ -1269,14 +1258,14 @@ lab_title.grid(column=0, columnspan=2, row=0, padx=spacing_out_x, pady=spacing_o
                ipadx=spacing_out_x / 2, ipady=spacing_out_y / 2)
 
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DONE~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 # ---------------------------left side frame stuff---------------------------
 frm_left = Frame(window, bg=color_dark)
 frm_left.grid(column=0, row=1, sticky="n, s, e, w", padx=spacing_out_x, pady=spacing_out_y)
 frm_left.grid_rowconfigure(2, weight=1)
 
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DONE~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 # ---------------------------area for check boxes of what to include in search---------------------------
 # the frame for the accompanying stuff to go in
 frm_checkbox_holder = LabelFrame(frm_left, text="What to include in the search?",
@@ -1329,7 +1318,7 @@ btn_search = Button(frm_checkbox_holder, text="Show everything from selected ite
 btn_search.grid(column=0, row=1, sticky="n, s, e, w", padx=spacing_in*1.45, pady=spacing_in*1.45)
 
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DONE~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 # ---------------------------area for text input to search stuff---------------------------
 # the frame for the accompanying stuff to go in
 frm_input = LabelFrame(frm_left, text="What do you want to search for?",
@@ -1349,7 +1338,6 @@ btn_search.grid(column=1, row=1, sticky="n, s", padx=spacing_in, pady=spacing_in
 frm_input.grid_columnconfigure(0, weight=1)
 
 
-# =========================TO-DO=========================
 # ---------------------------area for search results---------------------------
 # wrapper frame for everything going into the search results area
 frm_results = LabelFrame(frm_left, text="Search results", highlightthickness=1, highlightbackground=accent_light)
@@ -1395,10 +1383,8 @@ btn_add_item = Button(frm_results, text="Add a new item", command=lambda: add_ed
 btn_add_item.grid(column=1, row=2, sticky="e")
 
 # create the button that will be used to delete more items
-btn_add_item = Button(frm_results, text="Delete selected item", command="",
-                      activeforeground=text_color)
-btn_add_item.grid(column=0, row=2, sticky="w")
-
+btn_delete_item = Button(frm_results, text="Delete selected item", activeforeground=text_color, command=item_delete)
+btn_delete_item.grid(column=0, row=2, sticky="w")
 
 # print column titles for easier user understanding
 lab_result_name = Label(frm_results_titlerow, bg=color_light, text="Name", anchor="center")
@@ -1413,7 +1399,7 @@ srlb_results.update()
 lab_result_spacing = Label(frm_results_titlerow, text="", width=int(srlb_results.winfo_width() / m_len), background=color_light)
 lab_result_spacing.grid(row=0, column=3)
 
-# =========================TO-DO=========================
+
 # ---------------------------area to display item information---------------------------
 # the frame for the accompanying stuff to go in
 frm_info = Frame(window)
